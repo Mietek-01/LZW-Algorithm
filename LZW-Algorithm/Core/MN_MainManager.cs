@@ -262,9 +262,6 @@ namespace MichałNiedek_LZW_Algorithm
                     throw mn_e;
                 }
 
-                // Blokuje mozliwosc edyzji bazowego slownika
-                mn_form.mn_txt_BDicitonary.ReadOnly = true;
-
                 // Tworze bazowy slownik
                 var mn_dictionary = new MN_LZWDictionary<char>(mn_basicDictionary.ToCharArray(), false);
 
@@ -278,6 +275,11 @@ namespace MichałNiedek_LZW_Algorithm
                     mn_graphicDictionary = new MN_LZWGraphicDictionary(mn_form, mn_dictionary.MN_GetStringedWords());
                 else
                     mn_graphicDictionary.MN_Update(mn_dictionary.MN_GetStringedWords());
+
+                // Blokuje mozliwosc edyzji bazowego slownika
+                // Wazne musi byc na koncu bo gdy zostanie rzucony wyjatek to nie moge zablokowac
+                // mozliwosci zmiany danych
+                mn_form.mn_txt_BDicitonary.ReadOnly = true;
 
                 return mn_decompressedSource;
             }
