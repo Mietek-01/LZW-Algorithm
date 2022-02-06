@@ -46,21 +46,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LZWAlgorithm\MN_LZW.cs" />
+    <Compile Include="LZWAlgorithm\MN_LZWDictionary.cs" />
+    <Compile Include="LZWAlgorithm\MN_LZWDictionaryWord.cs" />
     <Compile Include="MN_MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MN_MainForm.Designer.cs">
       <DependentUpon>MN_MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MN_LZWVisibleDictionary.cs">
+    <Compile Include="MN_LZWGraphicDictionary.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MN_LZW.cs" />
     <Compile Include="MN_MainManager.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MN_LZWDictionary.cs" />
-    <Compile Include="MN_LZWDictionaryWord.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="MN_MainForm.resx">

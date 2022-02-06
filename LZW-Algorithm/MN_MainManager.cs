@@ -9,9 +9,9 @@ namespace MichałNiedek_LZW_Algorithm
     public partial class MN_MainForm
     {
         public static partial class MN_MainManager
-        {   
+        {
             public enum MN_ExceptionPlace
-            { 
+            {
                 SOURCE_DATA,
                 RESULT,
                 BASIC_DICTIONARY,
@@ -20,28 +20,28 @@ namespace MichałNiedek_LZW_Algorithm
 
             public enum MN_LZWMode
             {
-                COMPRESS,
-                DECOMPRESS
+                COMPRESSION,
+                DECOMPRESSION
             }
-            
+
+            public static int MN_NumberOfPreservedCompressions => mn_preservedCompressions.Count;
+
             public static MN_LZWMode MN_LZWAlgorithmMode
             {
                 get => mn_LZWAlgorithmMode;
                 set
                 {
                     mn_LZWAlgorithmMode = value;
-                    MN_ResetResource(false);
+                    MN_ResetForm(false);
                 }
             }
 
-            public static int MN_NumberOfPreservedCompressions => mn_preservedCompressions.Count;
-
-            static MN_LZWMode mn_LZWAlgorithmMode = MN_LZWMode.COMPRESS;
+            static MN_LZWMode mn_LZWAlgorithmMode = MN_LZWMode.COMPRESSION;
 
             static MN_MainForm mn_form;
-            static MN_LZWVisibleDictionary mn_generetedDictionary;
+            static MN_LZWGraphicDictionary mn_graphicDictionary;
 
-            // Tutaj zapisuje swoje kompresje ktore pozniej bede mogl zapisac do pliku
+            // Tutaj zapisuje swoje kompresje ktore pozniej bede mogl zapisac do pliku.
             // Kluczem jest bazowy slownik a wartoscia skompresowany kod
             static List<KeyValuePair<string, string>> mn_preservedCompressions = new List<KeyValuePair<string, string>>();
 
@@ -55,12 +55,12 @@ namespace MichałNiedek_LZW_Algorithm
 
                 try
                 {
-                    if (MN_LZWAlgorithmMode == MN_LZWMode.COMPRESS)
+                    if (MN_LZWAlgorithmMode == MN_LZWMode.COMPRESSION)
                         mn_form.mn_txt_Result.Text = MN_Compress(MN_GetSourceForCompression(mn_txtSource));
                     else
                         mn_form.mn_txt_Result.Text = MN_Decompress(MN_GetSourceForDecompression(mn_txtSource));
                 }
-                catch(Exception mn_e)
+                catch (Exception mn_e)
                 {
                     if (mn_e.Source == MN_ExceptionPlace.SOURCE_DATA.ToString())
                         mn_form.mn_ErrorProvider.SetError(mn_form.mn_lbl_SourceData, mn_e.Message);
@@ -75,16 +75,14 @@ namespace MichałNiedek_LZW_Algorithm
                         mn_form.mn_ErrorProvider.SetError(mn_form.mn_lbl_GeneratedDictionary, mn_e.Message);
 
                     else
-                    mn_form.mn_ErrorProvider.SetError(mn_form.mn_btn_Run, mn_e.Message);
+                        mn_form.mn_ErrorProvider.SetError(mn_form.mn_btn_Run, mn_e.Message);
                 }
-                
+
             }
 
-            public static void MN_ResetResource(bool mn_resetByButton)
+            public static void MN_ResetForm(bool mn_resetByButton)
             {
                 // Resetowac mozna poprzez uzycie przycisku lub przelaczajac sie pomiedzy trybami
-
-                GC.Collect();
 
                 mn_form.mn_ErrorProvider.Dispose();
 
@@ -94,31 +92,34 @@ namespace MichałNiedek_LZW_Algorithm
                 mn_form.mn_txt_BDicitonary.ReadOnly = false;
 
                 // Usuwam graficzna wizualizacje slownika
-                if (mn_generetedDictionary!=null)
+                if (mn_graphicDictionary != null)
                 {
-                    mn_generetedDictionary.MN_Clear();
-                    mn_generetedDictionary = null;
+                    mn_graphicDictionary.MN_Clear();
+                    mn_graphicDictionary = null;
                 }
 
                 // Dzieki temu przy zmianie na dekompresje nie usunie mi bazowego slownika
-                if(mn_resetByButton)
+                if (mn_resetByButton)
                     mn_form.mn_txt_BDicitonary.ResetText();
 
-                // Gdy jest to reset gdy tryb jest ustawiony na dekompresej
-                if (mn_LZWAlgorithmMode == MN_LZWMode.COMPRESS)
+                // Dla resetu gdy tryb ustawiony jest na kompresje
+                if (mn_LZWAlgorithmMode == MN_LZWMode.COMPRESSION)
                 {
                     mn_form.mn_btn_Preserve.Visible = true;
                     mn_form.mn_btn_Preserve.Enabled = false;
                     mn_form.mn_txt_BDicitonary.ResetText();
 
-                    MN_ShowBasicDictionaryInput(false);
+                    MN_ShowBasicDictionary(false);
                 }
                 else
                     mn_form.mn_btn_Preserve.Visible = false;
+
+                // Wywoluje GC
+                GC.Collect();
             }
-            
-            public static void MN_ShowBasicDictionaryInput(bool mn_value)
-            {               
+
+            public static void MN_ShowBasicDictionary(bool mn_value)
+            {
                 mn_form.mn_txt_BDicitonary.Visible = mn_value;
                 mn_form.mn_lbl_BDictionary.Visible = mn_value;
 
@@ -146,7 +147,7 @@ namespace MichałNiedek_LZW_Algorithm
 
                 mn_form.mn_btn_Preserve.Enabled = false;
             }
-            
+
             public static void MN_SaveCompressionsToFile(bool mn_sort)
             {
                 mn_form.mn_SavedFileDialog.Filter = "Plik tekstowy (*.txt)|";
@@ -157,7 +158,7 @@ namespace MichałNiedek_LZW_Algorithm
 
                 if (mn_form.mn_SavedFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    System.IO.StreamWriter mn_file = new System.IO.StreamWriter(mn_form.mn_SavedFileDialog.OpenFile());
+                    var mn_file = new System.IO.StreamWriter(mn_form.mn_SavedFileDialog.OpenFile());
 
                     try
                     {
@@ -219,38 +220,31 @@ namespace MichałNiedek_LZW_Algorithm
 
             static string MN_Compress(char[] mn_source)
             {
-                var mn_dictionary = new MN_LZWDictionary<char>(mn_source,mn_LZWAlgorithmMode == MN_LZWMode.COMPRESS);
+                // Tworze podstawowy slownik z przeslanego zrodla
+                var mn_dictionary = new MN_LZWDictionary<char>(mn_source, true);
 
-                // Zapisze to sobie pozniej do textBoxa
-                string mn_basicDictionary = mn_dictionary.ToString();
+                // Pokazuje i ustawiam bazowy slownik w widoku okna
+                // Musi byc przed kompresja gdy po niej slownik nie bedzie juz slownikiem bazowym
+                MN_ShowBasicDictionary(true);
 
-                //--------------Kompresja LZW----------//
-
-                var mn_lzw = new MN_LZW<char>(mn_dictionary);
-
-                //Console.WriteLine("KOMPRESJA");
-                //Console.WriteLine("ZRODLO: " + new string(source));
-
-                //dictionary.Draw();
-
-                string mn_result = mn_lzw.MN_Compression(mn_source.ToList());
-
-                //dictionary.Draw();
-
-                MN_ShowBasicDictionaryInput(true);
-
-                mn_form.mn_txt_BDicitonary.Text = mn_basicDictionary;
+                mn_form.mn_txt_BDicitonary.Text = mn_dictionary.ToString();
                 mn_form.mn_txt_BDicitonary.ReadOnly = true;
 
-                // Tworze graficzna wizualizacje slownika lub go aktualizuje
-                if (mn_generetedDictionary == null)
-                    mn_generetedDictionary = new MN_LZWVisibleDictionary(mn_form, mn_dictionary.MN_GetStringWords());
-                else
-                    mn_generetedDictionary.MN_Update(mn_dictionary.MN_GetStringWords());
+                // Kompresja zrodla
+                var mn_lzw = new MN_LZW<char>(mn_dictionary);
 
+                string mn_compressedSource = mn_lzw.MN_Compress(mn_source.ToList());
+
+                // Tworze graficzna wizualizacje slownika lub go aktualizuje
+                if (mn_graphicDictionary == null)
+                    mn_graphicDictionary = new MN_LZWGraphicDictionary(mn_form, mn_dictionary.MN_GetStringedWords());
+                else
+                    mn_graphicDictionary.MN_Update(mn_dictionary.MN_GetStringedWords());
+
+                // Po kopmresji wlacz mozliwosc zachowania kompresji
                 mn_form.mn_btn_Preserve.Enabled = true;
 
-                return mn_result;
+                return mn_compressedSource;
 
             }
 
@@ -259,45 +253,40 @@ namespace MichałNiedek_LZW_Algorithm
                 // Pobieram bazowy slownik podany przez uzytkownika
                 string mn_basicDictionary = mn_form.mn_txt_BDicitonary.Text;
 
+                // Sprawdzam poprawnosc zawartosci bazowego slownika
                 if (new string(mn_basicDictionary.ToCharArray()).Trim(' ').Length == 0)
                 {
-                    Exception mn_e = new Exception("Bazowy słownik nie może być pusty!!!");
+                    var mn_e = new Exception("Bazowy słownik nie może być pusty!!!");
                     mn_e.Source = MN_ExceptionPlace.BASIC_DICTIONARY.ToString();
 
                     throw mn_e;
                 }
 
-                var mn_dictionary = new MN_LZWDictionary<char>(mn_basicDictionary.ToCharArray()
-                    ,mn_LZWAlgorithmMode == MN_LZWMode.COMPRESS);
-
-                //-----------Dekompresja--------
-
-                var mn_lzw = new MN_LZW<char>(mn_dictionary);
-
-                //Console.WriteLine("DEKOMPRESJA");
-
-                //dictionary.Draw();
-
-                string mn_result = mn_lzw.MN_Decompression(mn_source);
-
-                //dictionary.Draw();
-
+                // Blokuje mozliwosc edyzji bazowego slownika
                 mn_form.mn_txt_BDicitonary.ReadOnly = true;
 
-                // Tworze graficzna wizualizacje slownika lub jego aktualizacja
-                if (mn_generetedDictionary == null)
-                    mn_generetedDictionary = new MN_LZWVisibleDictionary(mn_form, mn_dictionary.MN_GetStringWords());
-                else
-                    mn_generetedDictionary.MN_Update(mn_dictionary.MN_GetStringWords());
+                // Tworze bazowy slownik
+                var mn_dictionary = new MN_LZWDictionary<char>(mn_basicDictionary.ToCharArray(), false);
 
-                return mn_result;
+                // Dekompresja
+                var mn_lzw = new MN_LZW<char>(mn_dictionary);
+
+                string mn_decompressedSource = mn_lzw.MN_Decompress(mn_source);
+
+                // Tworze graficzna wizualizacje slownika lub go aktualizuje
+                if (mn_graphicDictionary == null)
+                    mn_graphicDictionary = new MN_LZWGraphicDictionary(mn_form, mn_dictionary.MN_GetStringedWords());
+                else
+                    mn_graphicDictionary.MN_Update(mn_dictionary.MN_GetStringedWords());
+
+                return mn_decompressedSource;
             }
 
             static char[] MN_GetSourceForCompression(string mn_txtSource)
             {
                 if (mn_txtSource.Length <= 3 || new string(mn_txtSource.ToCharArray()).Trim(' ').Length == 0)
                 {
-                    Exception mn_e = new Exception("Ciąg musi składać się z przynajmniej 3 znaków nie będacymi spacją");
+                    var mn_e = new Exception("Dane wejściowe muszą składać się z przynajmniej 3 nie białych znaków");
                     mn_e.Source = MN_ExceptionPlace.SOURCE_DATA.ToString();
 
                     throw mn_e;
@@ -310,41 +299,42 @@ namespace MichałNiedek_LZW_Algorithm
             {
                 if (new string(mn_txtSource.ToCharArray()).Trim(' ').Length == 0)
                 {
-                    Exception mn_e = new Exception("Podaj kod do dekompresji!!!");
+                    var mn_e = new Exception("Podaj kod do dekompresji!");
                     mn_e.Source = MN_ExceptionPlace.SOURCE_DATA.ToString();
 
                     throw mn_e;
                 }
 
-                List<int> mn_source=new List<int>();
+                var mn_convertedSource = new List<int>();
 
-                // Poprostu dziele txtSource na spacje
-                List<string> mn_splitSource = new List<string>(mn_txtSource.Split(' '));
+                // Dziele txtSource na spacje
+                var mn_splitSource = new List<string>(mn_txtSource.Split(' '));
 
+                // Konwertuje podzielonego stringa na liczby
                 foreach (var mn_obj in mn_splitSource)
                 {
                     int mn_number;
 
                     // Sprawdzam czy podzielony tekst sklada sie z liczb
-                    if(!int.TryParse(mn_obj,out mn_number))
+                    if (!int.TryParse(mn_obj, out mn_number))
                     {
-                        // Dzieki temu biale znaki mi poprostu pominie i zrobienie np dwoch spacji
-                        // Nie zablokuje pobierania danych
-
-                        if (new string(mn_obj.ToCharArray()).Trim(' ').Length != 0 )// Czyli gdy obiekt jest litera
+                        // Dzieki temu biale znaki zostana pominiete i zrobienie np dwoch spacji
+                        // nie zablokuje pobierania danych
+                        if (new string(mn_obj.ToCharArray()).Trim(' ').Length != 0)// Czyli gdy obiekt jest litera
                         {
-                            Exception mn_e = new Exception("Błędny kod, w kodzie do dekompresji moga wystepować tylko liczby odzielone jedną spacja!!!");
+                            var mn_e = new Exception("Błędny kod, w kodzie do dekompresji moga wystepować tylko liczby"
+                            + "odzielone jedną spacja!!!");
                             mn_e.Source = MN_ExceptionPlace.SOURCE_DATA.ToString();
 
                             throw mn_e;
                         }
 
-                    }else
-                        mn_source.Add(mn_number);
+                    }
+                    else
+                        mn_convertedSource.Add(mn_number);
                 }
 
-
-                return mn_source.ToArray();
+                return mn_convertedSource.ToArray();
             }
 
             #endregion
