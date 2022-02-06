@@ -49,21 +49,21 @@
     <Compile Include="LZWAlgorithm\MN_LZW.cs" />
     <Compile Include="LZWAlgorithm\MN_LZWDictionary.cs" />
     <Compile Include="LZWAlgorithm\MN_LZWDictionaryWord.cs" />
-    <Compile Include="MN_MainForm.cs">
+    <Compile Include="Core\MN_MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MN_MainForm.Designer.cs">
+    <Compile Include="Core\MN_MainForm.Designer.cs">
       <DependentUpon>MN_MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MN_LZWGraphicDictionary.cs">
+    <Compile Include="Core\MN_LZWGraphicDictionary.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MN_MainManager.cs">
+    <Compile Include="Core\MN_MainManager.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="MN_MainForm.resx">
+    <EmbeddedResource Include="Core\MN_MainForm.resx">
       <DependentUpon>MN_MainForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
