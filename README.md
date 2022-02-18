@@ -5,7 +5,7 @@
 Algorytm LZW jest algorytmem kompresującym mającym na celu skompresować dane do mniejszych rozmiarów np. mając plik tekstowy o rozmiarze 10MB 
 po jego skompresowaniu możemy uzyskać plik o rozmiarze 7MB.
 
-Program, który napisałem w ramach projektu zaliczeniowego na studia, jest wizualizacją działania owego algorytmu na podstawie tekstu wprowadzonego przez użytkownika.
+Program, który napisałem w ramach projektu zaliczeniowego na studia przy użyciu platformy .NET, jest wizualizacją działania owego algorytmu na podstawie tekstu wprowadzonego przez użytkownika.
 
 ## Kompresja
 
@@ -32,4 +32,4 @@ W celu zdekompresowania, algorytm potrzebuje do tego skompresowany kod (odpowied
 
 - Kod programu znajdu się w folderze [Core](https://github.com/Mietek-01/LZW-Algorithm/tree/master/LZW-Algorithm/Core).
 
-- Cały algorytm LZW znajduje się w folderze [LZWAlgorithm](https://github.com/Mietek-01/LZW-Algorithm/tree/master/LZW-Algorithm/LZWAlgorithm).
+- Mój algorytm LZW znajduje się w folderze [LZWAlgorithm](https://github.com/Mietek-01/LZW-Algorithm/tree/master/LZW-Algorithm/LZWAlgorithm).
