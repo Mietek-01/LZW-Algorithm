@@ -32,4 +32,4 @@ W celu zdekompresowania, algorytm potrzebuje do tego skompresowany kod (odpowied
 
 - Kod programu znajdu się w folderze [Core](https://github.com/Mietek-01/LZW-Algorithm/tree/master/LZW-Algorithm/Core).
 
-- Mój algorytm LZW znajduje się w folderze [LZWAlgorithm](https://github.com/Mietek-01/LZW-Algorithm/tree/master/LZW-Algorithm/LZWAlgorithm).
+- Moja implementacja algorytmu LZW znajduje się w folderze [LZWAlgorithm](https://github.com/Mietek-01/LZW-Algorithm/tree/master/LZW-Algorithm/LZWAlgorithm).
