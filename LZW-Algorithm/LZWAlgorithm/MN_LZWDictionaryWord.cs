@@ -31,18 +31,7 @@ namespace MichałNiedek_LZW_Algorithm.LZW
                 foreach (var mn_myElement in mn_myElements)
                 {
                     // !!! Gdy obiekt nie bd mial przeciazanej metody ToString wywolanie jej zworci nazwe klasy
-                    // ale z nazwa namespaca w ktorej obirkt sie znajduje !!!
-
-                    /*string mn_stringedObject = mn_myElement.ToString();
-
-                    if (mn_stringedObject == "MichałNiedek_LZW_Algorithm." + mn_myElement.GetType().Name)
-                    {
-                        var e = new Exception("Slowo jest zbudowane z obiektu ktory nie ma metody ToString!!!");
-                        e.Source = MN_MainForm.MN_MainManager.MN_ExceptionPlace.RESULT.ToString();
-
-                        throw e;
-                    }
-                    else*/
+                    // ale z nazwa namespaca w ktorej obiekt sie znajduje !!!
 
                     mn_stringedWord += mn_myElement.ToString();
                 }
@@ -56,19 +45,27 @@ namespace MichałNiedek_LZW_Algorithm.LZW
                 mn_myElements.Add(mn_newObject);
             }
 
-            public bool MN_Equals(MN_LZWDictionaryWord mn_word)
+            public override bool Equals(object obj)
             {
-                if (mn_word == null) return false;
+                if (obj == null || !(obj is MN_LZWDictionaryWord)) return false;
 
-                if (mn_word.mn_myElements.Count != this.mn_myElements.Count)
-                    return false;
+                if (this == obj) return true;
+
+                var mn_wordToCompare = (MN_LZWDictionaryWord)obj;
+
+                if (this.mn_myElements.Count != mn_wordToCompare.mn_myElements.Count) return false;
 
                 // Porownuje poszczegolne elementy dwoch slow
                 for (int i = 0; i < this.mn_myElements.Count; i++)
-                    if (!this.mn_myElements[i].Equals(mn_word.mn_myElements[i]))
+                    if (!this.mn_myElements[i].Equals(mn_wordToCompare.mn_myElements[i]))
                         return false;
 
                 return true;
+            }
+
+            public override int GetHashCode()
+            {
+                return mn_myElements.GetHashCode();
             }
         }
     }

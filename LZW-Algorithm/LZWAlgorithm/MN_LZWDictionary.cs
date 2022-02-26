@@ -66,13 +66,12 @@ namespace MichałNiedek_LZW_Algorithm.LZW
             }
         }
 
-        public int MN_FindIndex(MN_LZWDictionaryWord mn_wordToFind)
+        public int MN_FindIndex(MN_LZWDictionaryWord mn_forWord)
         {
-            int mn_index = mn_myWords.FindIndex(word => word.MN_Equals(mn_wordToFind));
+            int mn_index = mn_myWords.FindIndex(word => word.Equals(mn_forWord));
 
-            // -1 oznacza ze nie znalazl natomiast gdy znajdzie to musimy zwiekszyc o jeden bo w 
-            // algorytmie LZW indexuje sie od 1
             if (mn_index != -1)
+                // Musze zwiekszyc o 1 bo w algorytmie LZW indexuje sie od 1
                 mn_index++;
 
             return mn_index;
